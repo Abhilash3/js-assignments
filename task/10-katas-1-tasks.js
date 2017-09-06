@@ -126,7 +126,7 @@ function getZigZagMatrix(n) {
             i -= counter;
             j += counter;
         }
-        [i, j] = ((i, j) => {
+        let values = ((i, j) => {
             if (i == n) {
                 return [i - 1, j + 2];
             } else if (j == n) {
@@ -135,6 +135,8 @@ function getZigZagMatrix(n) {
                 return [min(max(0, i), n - 1), min(max(0, j), n - 1)];
             }
         })(i, j);
+        i = values[0];
+        j = values[1];
         counter = -counter;
     }
     return arr;
