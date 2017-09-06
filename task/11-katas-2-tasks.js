@@ -120,7 +120,7 @@ function getPokerHandRank(hand) {
     let cards = hand.map(a => a.substr(0, a.length - 1)).map(a => {
         return a == 'A' && 1 || a == 'J' && 11 || a == 'Q' && 12 || a == 'K' && 13 || +a;
     });
-    let flush = cardTypes.map(a => a + a + a + a + a).includes(hand.map(a => a[a.length - 1]).join(''));
+    let flush = cardTypes.map(a => a + a + a + a + a).indexOf(hand.map(a => a[a.length - 1]).join('')) >= 0;
     
     cards.forEach(a => {
         positions[a - 1] += 1;
@@ -129,13 +129,13 @@ function getPokerHandRank(hand) {
     let straight = positions.join('').indexOf('11111') != -1;
     
     if (flush && straight) return PokerRank.StraightFlush;
-    if (positions.includes(4)) return PokerRank.FourOfKind;
-    if (positions.includes(3) && positions.includes(2)) return PokerRank.FullHouse;
+    if (positions.indexOf(4) >= 0) return PokerRank.FourOfKind;
+    if (positions.indexOf(3) >= 0 && positions.indexOf(2) >= 0) return PokerRank.FullHouse;
     if (flush) return PokerRank.Flush;
     if (straight) return PokerRank.Straight;
-    if (positions.includes(3)) return PokerRank.ThreeOfKind;
+    if (positions.indexOf(3) >= 0) return PokerRank.ThreeOfKind;
     if (positions.slice(0, positions.length - 1).join('').match(/22|2[01]+2/)) return PokerRank.TwoPairs;
-    if (positions.includes(2)) return PokerRank.OnePair;
+    if (positions.indexOf(2) >= 0) return PokerRank.OnePair;
     return PokerRank.HighCard;
 }
 
