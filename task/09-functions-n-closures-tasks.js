@@ -26,7 +26,7 @@
  *
  */
 function getComposition(f,g) {
-    throw new Error('Not implemented');
+    return x => f(g(x));
 }
 
 
@@ -47,7 +47,7 @@ function getComposition(f,g) {
  *
  */
 function getPowerFunction(exponent) {
-    throw new Error('Not implemented');
+    return x => Math.pow(x, exponent);
 }
 
 
@@ -64,8 +64,11 @@ function getPowerFunction(exponent) {
  *   getPolynom(8)     => y = 8
  *   getPolynom()      => null
  */
-function getPolynom() {
-    throw new Error('Not implemented');
+function getPolynom(...values) {
+    return x => {
+        let i = 0;
+        return values.length === 0 ? null : values.reduce((a, b) => a + values[i] * Math.pow(x, values.length - ++i), 0)
+    };
 }
 
 
@@ -83,8 +86,23 @@ function getPolynom() {
  *   ...
  *   memoizer() => the same random number  (next run, returns the previous cached result)
  */
+let defaultMap = () => ({ calculated: false, result: undefined, map: new Map() });
 function memoize(func) {
-    throw new Error('Not implemented');
+    let map = defaultMap();
+    return (...values) => {
+        let obj = map, i = 0, stack = [];
+        while (i < values.length) {
+            stack.push(obj);
+            obj = obj.map.get(values[i]);
+            if (!obj) {
+                obj = defaultMap();
+                stack[i].map.set(values[i++], obj);
+            }
+        }
+        obj.result = obj.calculated ? obj.result : func(...values);
+        obj.calculated = true;
+        return obj.result;
+    };
 }
 
 
@@ -104,7 +122,15 @@ function memoize(func) {
  * retryer() => 2
  */
 function retry(func, attempts) {
-    throw new Error('Not implemented');
+    return (...values) => {
+        while (attempts-- > 0) {
+            try {
+                return func(...values)
+            } catch (err) {
+                // ignore it.
+            }
+        }
+    };
 }
 
 
@@ -131,8 +157,28 @@ function retry(func, attempts) {
  * cos(3.141592653589793) ends
  *
  */
+let stringify = obj => {
+    if (obj instanceof Array) {
+        return '[' + obj.reduce((a, b) => {
+            if (b instanceof String || typeof b === 'string') b = '"' + b + '"';
+            return a + ',' + stringify(b);
+        }, '').substr(1, this.length) + ']';
+    } else if (obj instanceof Object) {
+        return JSON.stringify(obj);
+    } else {
+        return obj.toString();
+    }
+};
+let arrToString = arr => {
+    return arr.reduce((a, b) => a + ',' + stringify(b), '').substr(1, this.length);
+};
 function logger(func, logFunc) {
-    throw new Error('Not implemented');
+    return (...values) => {
+        logFunc(`${func.name}(${arrToString(values)}) starts`);
+        let result = func(...values);
+        logFunc(`${func.name}(${arrToString(values)}) ends`);
+        return result;
+    };
 }
 
 
@@ -149,8 +195,8 @@ function logger(func, logFunc) {
  *   partialUsingArguments(fn, 'a','b','c')('d') => 'abcd'
  *   partialUsingArguments(fn, 'a','b','c','d')() => 'abcd'
  */
-function partialUsingArguments(fn) {
-    throw new Error('Not implemented');
+function partialUsingArguments(fn, ...values) {
+    return fn.bind(null, ...values);
 }
 
 
@@ -171,7 +217,7 @@ function partialUsingArguments(fn) {
  *   getId10() => 11
  */
 function getIdGeneratorFunction(startFrom) {
-    throw new Error('Not implemented');
+    return () => startFrom++;
 }
 
 

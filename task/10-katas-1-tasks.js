@@ -55,8 +55,35 @@ function createCompassPoints() {
  *
  *   'nothing to do' => 'nothing to do'
  */
+var closingBracketIndex = (str, start) => {
+    let count = 1, end = start + 1;
+    for(; count != 0; end++) {
+        if (str[end] === '}') count--;
+        if (str[end] === '{') count++;
+    }
+    return end - 1;
+}
+var process = str => {
+    let start = str.indexOf('{'), arr = [str.substr(0, start)];
+    while (start != -1) {
+        let end = closingBracketIndex(str, start), dummy = [];
+        arr.forEach(a => {
+            process(str.substr(start + 1, end - start - 1))
+            .map(a => a.split(',')).reduce((a, b) => a.concat(b), [])
+            .forEach(b => {
+                dummy.push(a + b);
+            });
+        });
+        arr = dummy;
+        
+        str = str.substr(end + 1);
+        start = str.indexOf('{');
+        arr = arr.map(a => a + str.substr(0, start));
+    }
+    return arr.map(a => a + str).filter((a, b, arr) => arr.indexOf(a) == b);
+}
 function* expandBraces(str) {
-    throw new Error('Not implemented');
+    yield* process(str);
 }
 
 
@@ -87,8 +114,30 @@ function* expandBraces(str) {
  *          [ 9,10,14,15 ]]
  *
  */
+
+let max = (a, b) => a > b ? a : b;
+let min = (a, b) => a < b ? a : b;
 function getZigZagMatrix(n) {
-    throw new Error('Not implemented');
+    let arr = new Array(n).fill(0).map(a => new Array(n).fill(0));    
+    let i = 0, j = 0, count = 0, counter = 1;
+    while (count < n * n)  {
+        while (i >= 0 && i < n && j >= 0 && j < n) {
+            arr[i][j] = count++;
+            i -= counter;
+            j += counter;
+        }
+        [i, j] = ((i, j) => {
+            if (i == n) {
+                return [i - 1, j + 2];
+            } else if (j == n) {
+                return [i + 2, j - 1];
+            } else {
+                return [min(max(0, i), n - 1), min(max(0, j), n - 1)];
+            }
+        })(i, j);
+        counter = -counter;
+    }
+    return arr;
 }
 
 
@@ -112,8 +161,22 @@ function getZigZagMatrix(n) {
  * [[0,0], [0,1], [1,1], [0,2], [1,2], [2,2], [0,3], [1,3], [2,3], [3,3]] => false
  *
  */
+let next = (list, n) => {
+    return list.map((a, b) => ({ i: b, v: a })).filter(a => a.v[0] === n || a.v[1] === n)
+};
+let test = (list, n) => {
+    return next(list, n).some(a => {
+        let clone = list.map(a => a);
+        clone.splice(a.i, 1);
+        return clone.length == 0 || test(clone, a.v[0] == n ? a.v[1] : a.v[0])
+    });
+};
 function canDominoesMakeRow(dominoes) {
-    throw new Error('Not implemented');
+    return dominoes.some((a, b) => {
+        let clone = dominoes.map(a => a);
+        clone.splice(b, 1);
+        return test(clone, a[0]) || test(clone, a[1]);
+    });
 }
 
 
@@ -136,8 +199,27 @@ function canDominoesMakeRow(dominoes) {
  * [ 0, 1, 2, 5, 7, 8, 9] => '0-2,5,7-9'
  * [ 1, 2, 4, 5]          => '1,2,4,5'
  */
+function Range() {
+    this.list = [];
+}
+Range.prototype.add = function(n) {
+    this.list.push(n);
+}
+Range.prototype.toString = function(n) {
+    return this.list.length > 2 ? this.list[0] + '-' + this.list[this.list.length - 1] : this.list.join();
+}
 function extractRanges(nums) {
-    throw new Error('Not implemented');
+    let prev, ranges = [], range = new Range();
+    nums.forEach(a => {
+        if (prev && prev + 1 !== a) {
+            ranges.push(range);
+            range = new Range();
+        }
+        range.add(a);
+        prev = a;
+    });
+    ranges.push(range);
+    return ranges.join();
 }
 
 module.exports = {
