@@ -64,7 +64,8 @@ function getPowerFunction(exponent) {
  *   getPolynom(8)     => y = 8
  *   getPolynom()      => null
  */
-function getPolynom(...values) {
+function getPolynom() {
+    let values = Array.prototype.slice.call(arguments);
     return x => {
         let i = 0;
         return values.length === 0 ? null : values.reduce((a, b) => a + values[i] * Math.pow(x, values.length - ++i), 0)
@@ -89,8 +90,9 @@ function getPolynom(...values) {
 let defaultMap = () => ({ calculated: false, result: undefined, map: new Map() });
 function memoize(func) {
     let map = defaultMap();
-    return (...values) => {
+    return function() {
         let obj = map, i = 0, stack = [];
+        let values = Array.prototype.slice.call(arguments);
         while (i < values.length) {
             stack.push(obj);
             obj = obj.map.get(values[i]);
@@ -122,7 +124,8 @@ function memoize(func) {
  * retryer() => 2
  */
 function retry(func, attempts) {
-    return (...values) => {
+    return function() {
+        let values = Array.prototype.slice.call(arguments);
         while (attempts-- > 0) {
             try {
                 return func(...values)
@@ -173,7 +176,8 @@ let arrToString = arr => {
     return arr.reduce((a, b) => a + ',' + stringify(b), '').substr(1, this.length);
 };
 function logger(func, logFunc) {
-    return (...values) => {
+    return function() {
+        let values = Array.prototype.slice.call(arguments);
         logFunc(`${func.name}(${arrToString(values)}) starts`);
         let result = func(...values);
         logFunc(`${func.name}(${arrToString(values)}) ends`);
@@ -195,8 +199,9 @@ function logger(func, logFunc) {
  *   partialUsingArguments(fn, 'a','b','c')('d') => 'abcd'
  *   partialUsingArguments(fn, 'a','b','c','d')() => 'abcd'
  */
-function partialUsingArguments(fn, ...values) {
-    return fn.bind(null, ...values);
+function partialUsingArguments() {
+    let values = Array.prototype.slice.call(arguments, 1);
+    return arguments[0].bind(null, ...values);
 }
 
 
