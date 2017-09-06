@@ -302,8 +302,8 @@ function getDigitalRoot(num) {
 let start = ['(', '[', '{', '<'], end = [')', ']', '}', '>'], log = new Array(4).fill(0);
 function isBracketsBalanced(str) {
     for (let c of str) {
-        let pos = start.includes(c) ? start.indexOf(c) : end.indexOf(c);
-        log[pos] += start.includes(c) && 1 || -1;
+        let pos = start.indexOf(c) >= 0 ? start.indexOf(c) : end.indexOf(c);
+        log[pos] += start.indexOf(c) >= 0 && 1 || -1;
         if (log.reduce((a, b) => a || b < 0, false)) return false;
     }
     return log.reduce((a, b) => a && b == 0, true);
