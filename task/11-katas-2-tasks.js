@@ -177,13 +177,14 @@ function* getFigureRectangles(figure) {
     let shapes = [];
     for (let i = 0; i < figure.length - 1; i++) {
         for (let j = 0; j < figure[i].length - 1; j++) {
-            if (figure[i][j] === '+' && figure[i][j + 1] === '-' && figure[i + 1] && figure[i + 1][j] === '|') {
+            if (figure[i][j] === '+' && figure[i][j + 1] && figure[i][j + 1] !== ' ' && figure[i + 1] && figure[i + 1][j] !== ' ') {
                 let n = i, m = j;
-                while (n < figure.length - 1 && (figure[++n][j] == '|' || figure[n][j + 1] != '-')) {}
-                while (m < figure[i].length && (figure[i][++m] == '-' || figure[i + 1][m] != '|')) {}
-                if (figure[n][m] == '+') shapes.push([n - i + 1, m - j + 1]);
-            } else if (figure[i][j] === '+' && figure[i + 1][j] === '+' && figure[i][j + 1] === '+' && figure[i + 1][j + 1] === '+') {
-                shapes.push([2, 2]);
+                while (n < figure.length - 1 && (figure[++n][j] !== '+' || figure[n][j + 1] === ' ')) {}
+                while (m < figure[i].length - 1 && (figure[i][++m] !== '+' || figure[i + 1][m] === ' ')) {}
+                if (figure[n][m] == '+' && figure[n].slice(j + 1, m).join('').indexOf(' ') === -1 &&
+				    figure.slice(i + 1, n).map(a => a[m]).join('').indexOf(' ') === -1) {
+                    shapes.push([n - i + 1, m - j + 1]);
+                }
             }
         }
     }
@@ -201,7 +202,7 @@ function* getFigureRectangles(figure) {
             arr.push(temp.join(''));
         }
         return arr.join('\n') + '\n';
-    })
+    });
 }
 
 
